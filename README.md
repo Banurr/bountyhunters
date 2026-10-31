@@ -1,29 +1,256 @@
-# Getting Started
+# Space Bounty Hunters API
 
-### Reference Documentation
-For further reference, please consider the following sections:
+REST API for space bounty hunters. It exposes a database of wanted criminals and a journal of the hunters' own capture attempts.
 
-* [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/4.1.2/gradle-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/4.1.2/gradle-plugin/packaging-oci-image.html)
-* [Spring Web](https://docs.spring.io/spring-boot/4.1.2/reference/web/servlet.html)
-* [Flyway Migration](https://docs.spring.io/spring-boot/4.1.2/how-to/data-initialization.html#howto.data-initialization.migration-tool.flyway)
-* [Validation](https://docs.spring.io/spring-boot/4.1.2/reference/io/validation.html)
-* [SpringDoc OpenAPI](https://springdoc.org/)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/4.1.2/reference/data/sql.html#data.sql.jpa-and-spring-data)
+## Tech Stack
 
-### Guides
-The following guides illustrate how to use some features concretely:
+- Java 21
+- Spring Boot, Spring Web, Spring Data JPA (Hibernate)
+- PostgreSQL
+- Flyway (database migrations and seed data)
+- Lombok, Bean Validation
+- Gradle
+- Docker and Docker Compose
 
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
-* [Validation](https://spring.io/guides/gs/validating-form-input/)
-* [SpringDoc OpenAPI](https://github.com/springdoc/springdoc-openapi-demos/)
-* [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
+## Requirements
 
-### Additional Links
-These additional references should also help you:
+- Docker with Docker Compose v2 (Docker Desktop includes both)
+- Postman (to run the collection)
 
-* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
+No local Java, Gradle or PostgreSQL installation is needed. The application is built and started inside Docker.
 
+## Running the Application
+
+From the repository root:
+
+## Environment Variables
+
+| Variable | Value | Description |
+|---|---|---|
+| `POSTGRES_DB` | `bounty_hunters` | Database name |
+| `POSTGRES_HOST` | `database` | Hostname of the PostgreSQL container (its service name in `docker-compose.yml`) |
+| `POSTGRES_PORT` | `5432` | PostgreSQL port |
+| `POSTGRES_USER` | `postgres` | Database user |
+| `POSTGRES_PASSWORD` | `postgres` | Database password |
+
+```bash
+docker compose up -d
+```
+
+On the first start Docker builds the application image (this downloads the Gradle dependencies and takes a few minutes) and starts two containers: `database` (PostgreSQL) and `backend` (the API). The application waits until the database is ready.
+
+Check that the application has started:
+
+```bash
+docker compose logs -f app
+```
+
+The API is available at `http://localhost:8080`, for example `http://localhost:8080/api/criminals/`.
+
+After changing the source code, rebuild the image with `docker compose up -d --build`.
+
+Stop the application:
+
+```bash
+docker compose down
+```
+
+## Database Setup and Import
+
+The database schema and the initial data are imported automatically. When the application starts, Flyway runs the migrations against the PostgreSQL container, so no manual import is needed.
+
+Database settings (defined in `docker-compose.yml`):
+
+| Setting | Value |
+|---|---|
+| Database | `bountyhunters` |
+| User | `postgres` |
+| Password | `postgres` |
+
+
+### Migrations
+
+Files are located in `src/main/resources/db/migration`:
+
+| File | Purpose |
+|---|---|
+| `V1__create_tables.sql` | Creates `wanted_criminals` and `hunt_logs`, the foreign key and an index |
+| `V2__seed_data.sql` | Inserts 6 wanted criminals and 12 hunt logs |
+
+### Resetting the database
+
+Flyway runs each migration only once, and the data is kept in a Docker volume. To get a clean database with the original seed data, remove the volume and start again:
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+Hibernate only validates the schema; Flyway owns it.
+
+## Data Model
+
+**WantedCriminal** (`wanted_criminals`)
+
+| Field | Type | Notes |
+|---|---|---|
+| id | bigint | primary key |
+| name | varchar | real name, nullable (may be unknown) |
+| nickname | varchar | criminal alias, required |
+| reward | numeric(15,2) | bounty amount, must be >= 0 |
+| latitude, longitude | double | last known coordinates, nullable |
+| location_note | text | last known location as a text note, nullable |
+| difficulty | integer | overall difficulty, 1 to 10 |
+| armed | boolean | default false |
+| has_crew | boolean | default false |
+| escape_master | boolean | default false |
+
+**HuntLog** (`hunt_logs`)
+
+| Field | Type | Notes |
+|---|---|---|
+| id | bigint | primary key |
+| criminal_id | bigint | foreign key to `wanted_criminals`, required |
+| success | boolean | whether the criminal was captured |
+| notes | text | description of the encounter |
+| created_at | timestamp | generated by the server when the record is created |
+
+One `WantedCriminal` has many `HuntLog` entries (one-to-many). A hunt log cannot exist without a criminal.
+
+## API Endpoints
+
+### Wanted criminals
+
+| Method | URL | Description |
+|---|---|---|
+| GET | `/api/criminals/` | List wanted criminals with optional filters and sorting |
+| GET | `/api/criminals/{id}/` | Details of one criminal |
+
+Query parameters for `GET /api/criminals/` (all optional, can be combined):
+
+| Parameter | Description |
+|---|---|
+| `min_reward` | minimum bounty |
+| `max_reward` | maximum bounty |
+| `armed` | `true` or `false` |
+| `has_crew` | `true` or `false` |
+| `escape_master` | `true` or `false` |
+| `sort` | `reward` (ascending) or `-reward` (descending); the default order is by id |
+
+Example: `GET /api/criminals/?min_reward=5000&armed=true&sort=-reward`
+
+### Hunt logs
+
+| Method | URL | Description |
+|---|---|---|
+| GET | `/api/hunts/` | List all hunt logs, optional `criminal_id` filter |
+| GET | `/api/hunts/{id}/` | Get one hunt log |
+| POST | `/api/hunts/` | Record a capture attempt |
+| PATCH | `/api/hunts/{id}/` | Update `success` and/or `notes` |
+| DELETE | `/api/hunts/{id}/` | Delete a hunt log |
+
+Example: `GET /api/hunts/?criminal_id=5`
+
+POST body (`criminal_id` and `success` are required; `created_at` is generated by the server and ignored if sent):
+
+```json
+{
+  "criminal_id": 3,
+  "success": false,
+  "notes": "Target escaped through an asteroid field."
+}
+```
+
+PATCH body (send at least one field):
+
+```json
+{
+  "success": true,
+  "notes": "Captured after the target ran out of fuel."
+}
+```
+
+### Example responses
+
+Criminal:
+
+```json
+{
+  "id": 1,
+  "name": "Kael Draven",
+  "nickname": "Void Reaper",
+  "reward": 25000.00,
+  "latitude": 34.0522,
+  "longitude": -118.2437,
+  "location_note": "Last seen near Kepler Station",
+  "difficulty": 8,
+  "armed": true,
+  "has_crew": true,
+  "escape_master": true
+}
+```
+
+Hunt log:
+
+```json
+{
+  "id": 13,
+  "criminal_id": 3,
+  "success": false,
+  "notes": "Target escaped through an asteroid field.",
+  "created_at": "2026-10-31T09:15:42.123456"
+}
+```
+
+Error:
+
+```json
+{
+  "status": 404,
+  "message": "Hunt log with id 9999 not found"
+}
+```
+
+### Status codes
+
+| Code | When |
+|---|---|
+| 200 | successful GET or PATCH |
+| 201 | hunt log created |
+| 204 | hunt log deleted |
+| 400 | invalid request data: missing `success` or `criminal_id`, malformed JSON, wrong type, non-numeric id, invalid `sort`, PATCH without any field |
+| 404 | criminal or hunt log not found, or `criminal_id` in a POST does not exist |
+
+## Postman Collection
+
+The collection is in the repository root: `SpaceBountyHunters.postman_collection.json`.
+
+1. Start the application with `docker compose up -d` on a fresh database.
+2. In Postman choose Import and select the file. No environment is needed, all URLs use `http://localhost:8080`.
+3. Run the requests, or run the whole collection with the Collection Runner.
+
+It contains three folders:
+
+- **Criminals**: listing, filtering by reward, `armed`, `has_crew` and `escape_master`, sorting, combined filters with sorting, and criminal details.
+- **Hunt Logs**: list, filter by `criminal_id`, get one, create, update, delete, and a check that the deleted log returns 404.
+- **Invalid Requests**: non-existent ids, missing and wrongly typed fields, empty PATCH body, invalid `sort` and non-numeric id.
+
+Run the Hunt Logs folder in order on a fresh database. The seed data contains 12 hunt logs, so the log created by "Create hunt log" gets id 13, and the following requests use that id. If you run the folder a second time without resetting the database (`docker compose down -v`), the new log gets a different id and the id 13 requests return 404.
+
+## Project Structure
+
+```
+Dockerfile
+docker-compose.yml
+SpaceBountyHunters.postman_collection.json
+src/main/java/kz/kbtu/bountyhunters
+  controller   REST controllers
+  service      business logic
+  repository   Spring Data JPA repositories
+  entity       JPA entities
+  dto          request and response objects
+  exception    NotFoundException and the global exception handler
+src/main/resources
+  application.yml
+  db/migration  Flyway migrations (schema and seed data)
+```

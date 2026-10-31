@@ -3,7 +3,7 @@ spring:
         name: bounty_hunters
 
     datasource:
-        url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:postgres}
+        url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:bounty_hunters}
         username: ${POSTGRES_USER:postgres}
         password: ${POSTGRES_PASSWORD:postgres}
         hikari:
