@@ -1,6 +1,6 @@
 services:
     backend:
-        image: banurr/webmidterm
+        image: banurr/bountyhunters
         environment:
             POSTGRES_DB: ${POSTGRES_DB}
             POSTGRES_USER: ${POSTGRES_USER}
@@ -12,7 +12,7 @@ services:
         depends_on:
             - database
         networks:
-            - midterm
+            - bountyhunters
     database:
         image: postgres:18
         environment:
@@ -24,10 +24,10 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql
         networks:
-            - midterm
+            - bountyhunters
 
 networks:
-    midterm:
+    bountyhunters:
         driver: bridge
 
 volumes:
