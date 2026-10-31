@@ -1,0 +1,34 @@
+services:
+    backend:
+        image: banurr/webmidterm
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_PORT: ${POSTGRES_PORT}
+            POSTGRES_HOST: ${POSTGRES_HOST}
+        ports:
+            - "8080:8080"
+        depends_on:
+            - database
+        networks:
+            - midterm
+    database:
+        image: postgres:18
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        ports:
+            - "${POSTGRES_PORT}:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql
+        networks:
+            - midterm
+
+networks:
+    midterm:
+        driver: bridge
+
+volumes:
+    postgres_data:

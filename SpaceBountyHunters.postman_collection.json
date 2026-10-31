@@ -1,0 +1,237 @@
+{
+  "info": {
+    "name": "Space Bounty Hunters API",
+    "description": "Run the Hunt Logs folder in order on a fresh database. The seed data has 12 hunt logs, so the log created by 'Create hunt log' gets id 13 and the following requests use that id.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Criminals",
+      "item": [
+        {
+          "name": "List all criminals",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", ""]}
+          }
+        },
+        {
+          "name": "Filter by reward range",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/?min_reward=10000&max_reward=30000", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", ""], "query": [{"key": "min_reward", "value": "10000"}, {"key": "max_reward", "value": "30000"}]}
+          }
+        },
+        {
+          "name": "Filter by armed",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/?armed=true", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", ""], "query": [{"key": "armed", "value": "true"}]}
+          }
+        },
+        {
+          "name": "Filter by has_crew and escape_master",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/?has_crew=true&escape_master=true", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", ""], "query": [{"key": "has_crew", "value": "true"}, {"key": "escape_master", "value": "true"}]}
+          }
+        },
+        {
+          "name": "Filter and sort (min_reward, armed, sort=-reward)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/?min_reward=5000&armed=true&sort=-reward", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", ""], "query": [{"key": "min_reward", "value": "5000"}, {"key": "armed", "value": "true"}, {"key": "sort", "value": "-reward"}]}
+          }
+        },
+        {
+          "name": "Sort by reward ascending",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/?sort=reward", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", ""], "query": [{"key": "sort", "value": "reward"}]}
+          }
+        },
+        {
+          "name": "Get criminal details",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/1/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", "1", ""]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hunt Logs",
+      "item": [
+        {
+          "name": "List all hunt logs",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/hunts/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", ""]}
+          }
+        },
+        {
+          "name": "Filter hunt logs by criminal_id",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/hunts/?criminal_id=1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", ""], "query": [{"key": "criminal_id", "value": "1"}]}
+          }
+        },
+        {
+          "name": "Get hunt log by id",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/hunts/1/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", "1", ""]}
+          }
+        },
+        {
+          "name": "Create hunt log",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 201', function () { pm.response.to.have.status(201); });"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"criminal_id\": 3,\n  \"success\": false,\n  \"notes\": \"Target escaped through an asteroid field.\"\n}", "options": {"raw": {"language": "json"}}},
+            "url": {"raw": "http://localhost:8080/api/hunts/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", ""]}
+          }
+        },
+        {
+          "name": "Get created hunt log (id 13)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/hunts/13/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", "13", ""]}
+          }
+        },
+        {
+          "name": "Update hunt log (PATCH id 13)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"success\": true,\n  \"notes\": \"Captured after the target ran out of fuel.\"\n}", "options": {"raw": {"language": "json"}}},
+            "url": {"raw": "http://localhost:8080/api/hunts/13/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", "13", ""]}
+          }
+        },
+        {
+          "name": "Delete hunt log (id 13)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 204', function () { pm.response.to.have.status(204); });"]}}],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/hunts/13/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", "13", ""]}
+          }
+        },
+        {
+          "name": "Get hunt log after delete (404)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/hunts/13/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", "13", ""]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid Requests",
+      "item": [
+        {
+          "name": "Create hunt log with non-existent criminal (404)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"criminal_id\": 9999,\n  \"success\": false,\n  \"notes\": \"This criminal does not exist.\"\n}", "options": {"raw": {"language": "json"}}},
+            "url": {"raw": "http://localhost:8080/api/hunts/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", ""]}
+          }
+        },
+        {
+          "name": "Create hunt log without success (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"criminal_id\": 3,\n  \"notes\": \"The success field is missing.\"\n}", "options": {"raw": {"language": "json"}}},
+            "url": {"raw": "http://localhost:8080/api/hunts/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", ""]}
+          }
+        },
+        {
+          "name": "Create hunt log with wrong criminal_id type (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"criminal_id\": \"abc\",\n  \"success\": true,\n  \"notes\": \"criminal_id must be a number.\"\n}", "options": {"raw": {"language": "json"}}},
+            "url": {"raw": "http://localhost:8080/api/hunts/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", ""]}
+          }
+        },
+        {
+          "name": "Update hunt log with empty body (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{}", "options": {"raw": {"language": "json"}}},
+            "url": {"raw": "http://localhost:8080/api/hunts/1/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", "1", ""]}
+          }
+        },
+        {
+          "name": "Get non-existent hunt log (404)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/hunts/9999/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "hunts", "9999", ""]}
+          }
+        },
+        {
+          "name": "Get non-existent criminal (404)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/9999/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", "9999", ""]}
+          }
+        },
+        {
+          "name": "List criminals with invalid sort (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/?sort=banana", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", ""], "query": [{"key": "sort", "value": "banana"}]}
+          }
+        },
+        {
+          "name": "Get criminal with non-numeric id (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "http://localhost:8080/api/criminals/abc/", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api", "criminals", "abc", ""]}
+          }
+        }
+      ]
+    }
+  ]
+}
